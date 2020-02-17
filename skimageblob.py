@@ -37,9 +37,21 @@ grey = rgb2gray(maskbgr)
 """
 
 
-#use skimage difference of gaussian to detect blobs
+#use skimage difference of gaussians to detect blobs
+"""How difference of gaussians work:
+   Take 2 different gaussian kernels and convolute with the image
+   Then subtract one convoluted image from the other and look for areas of extrema
+   In this case extrema is most likely greyscale pixel values
+   Gaussian kernels are essentially a small 2d normal distribution matrix, much smaller than the image size
+   2D Convolution means that you take the kernel, invert it, and matrix multiply with part of image
+        to get value you use for convoluted image, then repeat across entire image matrix
+        Don't worry too much about how convolution works
+   Gaussian kernel is a well known smoothing function, aka it gets rid of massive changes in the picture
+   So this means that all small changes in between regions in the image should get nulled, while the large, strong features
+        or objects of interest, are preserved
+"""
 #parameters around max_sigma = 10 and threshold = .18 seem to work best for maryland_test_50.png
-#reconmend tuning max_sigma and thershold
+#reconmend tuning max_sigma and threshold
 #blobs_log is faster but less accurate
 #blobs_doh is slower but more accurate theoretically, but in practice doesn't seem better
 blobs_dog = blob_dog(grey, max_sigma=10, threshold=.18)
