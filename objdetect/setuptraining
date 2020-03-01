@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+import os
+import textwrap
+
+num_images = len(os.listdir('darknet/data/images'))
+num_train = int(num_images * 0.8)
+
+with open('darknet/data/train.txt', 'w') as f:
+  for i in range(0, num_train):
+    print('data/images/field_{}.png'.format(i), file=f)
+
+with open('darknet/data/val.txt', 'w') as f:
+  for i in range(num_train+1, num_images):
+    print('data/images/field_{}.png'.format(i), file=f)
+
+with open('darknet/data/yolo.names') as f:
+    f.write(textwrap.dedent("""
+        target
+        train = data/train.txt
+        valid = data/val.txt
+        names = data/yolo.names
+        backup = backup
+    """))

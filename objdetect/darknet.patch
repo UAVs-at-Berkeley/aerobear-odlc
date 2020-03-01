@@ -1,0 +1,830 @@
+*** darknet/examples/detector.c	2020-02-29 21:03:30.887463400 -0800
+--- old/darknet/detector.c	2020-02-29 20:58:28.359983200 -0800
+***************
+*** 135,141 ****
+              sprintf(buff, "%s/%s.backup", backup_directory, base);
+              save_weights(net, buff);
+          }
+!         if(i%10000==0 || (i < 1000 && i%100 == 0)){
+  #ifdef GPU
+              if(ngpus != 1) sync_nets(nets, ngpus, 0);
+  #endif
+--- 135,141 ----
+              sprintf(buff, "%s/%s.backup", backup_directory, base);
+              save_weights(net, buff);
+          }
+!         if(i%1000==0 || (i < 1000 && i%100 == 0)){
+  #ifdef GPU
+              if(ngpus != 1) sync_nets(nets, ngpus, 0);
+  #endif
+
+*** darknet/Makefile	2020-02-29 21:03:30.666527100 -0800
+--- old/darknet/Makefile	2020-02-29 20:57:25.531701900 -0800
+***************
+*** 1,6 ****
+! GPU=0
+! CUDNN=0
+! OPENCV=0
+  OPENMP=0
+  DEBUG=0
+
+--- 1,6 ----
+! GPU=1
+! CUDNN=1
+! OPENCV=1
+  OPENMP=0
+  DEBUG=0
+
+*** old/darknet/yolov3_custom_train.cfg	2020-02-29 20:56:43.581852800 -0800
+--- darknet/cfg/yolov3_custom_train.cfg	2020-02-29 19:45:04.719356616 -0800
+***************
+*** 0 ****
+--- 1,788 ----
++ [net]
++ # Testing
++ # batch=1
++ # subdivisions=1
++ # Training
++ batch=64
++ subdivisions=16
++ width=416
++ height=416
++ channels=3
++ momentum=0.9
++ decay=0.0005
++ angle=0
++ saturation = 1.5
++ exposure = 1.5
++ hue=.1
++
++ learning_rate=0.001
++ burn_in=1000
++ max_batches = 6000
++ policy=steps
++ steps=5400
++ scales=.1,.1
++
++ [convolutional]
++ batch_normalize=1
++ filters=32
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ # Downsample
++
++ [convolutional]
++ batch_normalize=1
++ filters=64
++ size=3
++ stride=2
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=32
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=64
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ # Downsample
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=3
++ stride=2
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=64
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=64
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ # Downsample
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=2
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ # Downsample
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=2
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ # Downsample
++
++ [convolutional]
++ batch_normalize=1
++ filters=1024
++ size=3
++ stride=2
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=1024
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=1024
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=1024
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=1024
++ size=3
++ stride=1
++ pad=1
++ activation=leaky
++
++ [shortcut]
++ from=-3
++ activation=linear
++
++ ######################
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=1024
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=1024
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=512
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=1024
++ activation=leaky
++
++ [convolutional]
++ size=1
++ stride=1
++ pad=1
++ filters=18
++ activation=linear
++
++
++ [yolo]
++ mask = 6,7,8
++ anchors = 10,13,  16,30,  33,23,  30,61,  62,45,  59,119,  116,90,  156,198,  373,326
++ classes=1
++ num=9
++ jitter=.3
++ ignore_thresh = .7
++ truth_thresh = 1
++ random=1
++
++
++ [route]
++ layers = -4
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [upsample]
++ stride=2
++
++ [route]
++ layers = -1, 61
++
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=512
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=512
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=256
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=512
++ activation=leaky
++
++ [convolutional]
++ size=1
++ stride=1
++ pad=1
++ filters=18
++ activation=linear
++
++
++ [yolo]
++ mask = 3,4,5
++ anchors = 10,13,  16,30,  33,23,  30,61,  62,45,  59,119,  116,90,  156,198,  373,326
++ classes=1
++ num=9
++ jitter=.3
++ ignore_thresh = .7
++ truth_thresh = 1
++ random=1
++
++
++
++ [route]
++ layers = -4
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [upsample]
++ stride=2
++
++ [route]
++ layers = -1, 36
++
++
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=256
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=256
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ filters=128
++ size=1
++ stride=1
++ pad=1
++ activation=leaky
++
++ [convolutional]
++ batch_normalize=1
++ size=3
++ stride=1
++ pad=1
++ filters=256
++ activation=leaky
++
++ [convolutional]
++ size=1
++ stride=1
++ pad=1
++ filters=18
++ activation=linear
++
++
++ [yolo]
++ mask = 0,1,2
++ anchors = 10,13,  16,30,  33,23,  30,61,  62,45,  59,119,  116,90,  156,198,  373,326
++ classes=1
++ num=9
++ jitter=.3
++ ignore_thresh = .7
++ truth_thresh = 1
++ random=1
