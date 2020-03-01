@@ -101,7 +101,7 @@ if __name__ == '__main__':
     for seed in range(args.num):
         random.seed(seed) # Setting the seed insures replicability of results
 
-        field = random.choice(fields)
+        field = np.copy(random.choice(fields))
         boxes = []
         for i in range(args.num_targets):
             # Randomize one target
