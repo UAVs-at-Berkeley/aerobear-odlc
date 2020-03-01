@@ -9,7 +9,9 @@ from util import *
 from darknet import Darknet
 import random
 
-def test(imlist):
+def test(imlist,
+         model='/content/darknet/cfg/yolov3_custom_train.cfg',
+         weights='/content/darknet/backup/yolov3_custom_train_400.weights'):
     batch_size = 1
     confidence = 0.1
     nms_thesh = 0.1
@@ -23,8 +25,8 @@ def test(imlist):
 
     #Set up the neural network
     print("Loading network.....")
-    model = Darknet('/content/darknet/cfg/yolov3_custom_train.cfg')
-    model.load_weights('/content/darknet/backup/yolov3_custom_train_400.weights')
+    model = Darknet(model)
+    model.load_weights(weights)
     print("Network successfully loaded")
 
     model.net_info["height"] = reso
