@@ -13,7 +13,7 @@ with open('darknet/data/val.txt', 'w') as f:
   for i in range(num_train+1, num_images):
     print('data/images/field_{}.png'.format(i), file=f)
 
-with open('darknet/data/yolo.names') as f:
+with open('darknet/data/yolo.names', 'w') as f:
     f.write(textwrap.dedent("""
         target
         train = data/train.txt
