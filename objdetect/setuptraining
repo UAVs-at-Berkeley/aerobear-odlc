@@ -14,8 +14,10 @@ with open('darknet/data/val.txt', 'w') as f:
     print('data/images/field_{}.png'.format(i), file=f)
 
 with open('darknet/data/yolo.names', 'w') as f:
+  print('target', file=f)
+
+with open('darknet/data/yolo.data', 'w') as f:
     f.write(textwrap.dedent("""
-        target
         train = data/train.txt
         valid = data/val.txt
         names = data/yolo.names
