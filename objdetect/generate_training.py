@@ -96,12 +96,17 @@ if __name__ == '__main__':
     os.makedirs(args.dest + '/images', exist_ok=True)
     os.makedirs(args.dest + '/labels', exist_ok=True)
 
-    fields = [cv2.imread('fields/' + f) for f in os.listdir('fields')]
+    allfields = os.listdir('fields')
+    trainfields, valfields = allfields[:-1], allfields[-1:]
+    fields = [cv2.imread('fields/' + f) for f in allfields]
 
     for seed in range(args.num):
         random.seed(seed) # Setting the seed insures replicability of results
 
-        field = np.copy(random.choice(fields))
+        if seed < int(0.8*args.num):
+            field = np.copy(random.choice(trainfields))
+        else:
+            field = np.copy(random.choice(valfields))
         boxes = []
         for i in range(args.num_targets):
             # Randomize one target
