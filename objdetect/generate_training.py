@@ -51,15 +51,25 @@ def affine_transform(img, rotation, scale):
 
 # Reduce image quality and add lighting effects and noise to give targets the feeling of having been photographed
 def add_noise(img, args):
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    for row in range(img.shape[0]):
-        for col in range(img.shape[1]):
-            # Desaturate
-            img[row, col, 1] *= args.lighting_constant
-            # Add a noise value to each of a pixel's saturation, and value
-            for i in [1, 2]:
-                value = img[row, col, i]
-                img[row, col, i] += min(255 - value, max(-int(value), random.randint(-args.noise_intensity, args.noise_intensity)))
+    origtype = img.dtype
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype(float)
+    img[:,:,1] *= args.lighting_constant
+
+    hue_noise = np.zeros(img.shape[:2])
+    sat_noise = np.random.uniform(-args.noise_intensity, args.noise_intensity, img.shape[:2])
+    val_noise = np.random.uniform(-args.noise_intensity, args.noise_intensity, img.shape[:2])
+    img = cv2.add(img, cv2.merge([hue_noise, sat_noise, val_noise]))
+
+    # for row in range(img.shape[0]):
+    #     for col in range(img.shape[1]):
+    #         # Desaturate
+    #         img[row, col, 1] *= args.lighting_constant
+    #         # Add a noise value to each of a pixel's saturation, and value
+    #         for i in [1, 2]:
+    #             value = img[row, col, i]
+    #             img[row, col, i] += min(255 - value, max(-int(value), random.randint(-args.noise_intensity, args.noise_intensity)))
+    img = np.clip(img, 0, 255)
+    img = img.astype(origtype)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
     return img
 
