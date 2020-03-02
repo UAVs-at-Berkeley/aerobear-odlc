@@ -96,9 +96,8 @@ if __name__ == '__main__':
     os.makedirs(args.dest + '/images', exist_ok=True)
     os.makedirs(args.dest + '/labels', exist_ok=True)
 
-    allfields = os.listdir('fields')
+    allfields = [cv2.imread('fields/' + f) for f in os.listdir('fields')]
     trainfields, valfields = allfields[:-1], allfields[-1:]
-    fields = [cv2.imread('fields/' + f) for f in allfields]
 
     for seed in range(args.num):
         random.seed(seed) # Setting the seed insures replicability of results
