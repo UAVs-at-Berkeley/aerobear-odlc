@@ -15,12 +15,14 @@ def place_target(target_img, orientation, position, scale, field, args):
     global bbox
     # Target preprocessing
     alpha_channel = target_img[:, :, 3]  # Since add_noise requites an HSV conversion that doesn't preserve alpha channel, we have to save it first
+
     target_img = add_noise(target_img, args)
     transformed_img = affine_transform(target_img, orientations[orientation], scale)
     transformed_alpha = affine_transform(alpha_channel, orientations[orientation], scale)
 
     # Target placing
     alpha_blend(transformed_img, transformed_alpha, position, field)
+
     y, x = position
     return (x, y, x+int(100*scale), y+int(100*scale))
 
@@ -41,13 +43,11 @@ def darknetify(bbox, imshape):
 # Compute the affine transformed image from a given rotation and scale
 def affine_transform(img, rotation, scale):
     rotation_matrix = cv2.getRotationMatrix2D((50, 50), rotation, 1)
-    scale_matrix = cv2.getRotationMatrix2D((0, 0), 0, scale)
+    scaled_matrix = rotation_matrix * scale
 
     new_dsize = (round(img.shape[0] * scale), round(img.shape[1] * scale))
-    transformed_img = cv2.warpAffine(img, rotation_matrix, img.shape[:2])
-    transformed_img = cv2.warpAffine(transformed_img, scale_matrix, new_dsize)
+    transformed_img = cv2.warpAffine(img, scaled_matrix, new_dsize)
     return transformed_img
-
 
 # Reduce image quality and add lighting effects and noise to give targets the feeling of having been photographed
 def add_noise(img, args):
@@ -60,14 +60,6 @@ def add_noise(img, args):
     val_noise = np.random.uniform(-args.noise_intensity, args.noise_intensity, img.shape[:2])
     img = cv2.add(img, cv2.merge([hue_noise, sat_noise, val_noise]))
 
-    # for row in range(img.shape[0]):
-    #     for col in range(img.shape[1]):
-    #         # Desaturate
-    #         img[row, col, 1] *= args.lighting_constant
-    #         # Add a noise value to each of a pixel's saturation, and value
-    #         for i in [1, 2]:
-    #             value = img[row, col, i]
-    #             img[row, col, i] += min(255 - value, max(-int(value), random.randint(-args.noise_intensity, args.noise_intensity)))
     img = np.clip(img, 0, 255)
     img = img.astype(origtype)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
@@ -76,10 +68,13 @@ def add_noise(img, args):
 
 # Superimpose the modified target image onto the background at the specified offset.
 def alpha_blend(img, alpha_channel, offset, field):
-    for row in range(img.shape[0]):
-        for col in range(img.shape[1]):
-            if alpha_channel[row, col] > 0:
-                field[row + offset[0], col + offset[1], :3] = img[row, col]
+    y, x = offset
+    blend = alpha_channel / 255 # scale of 0-1 for each pixel's transparency
+    patch = field[y:y+img.shape[0], x:x+img.shape[1]] # where the image is overlaid
+    for ch in range(3):
+        fg = np.multiply(img[:,:,ch], blend)
+        bg = np.multiply(patch[:,:,ch], 1-blend)
+        patch[:,:,ch] = fg + bg
     return field
 
 
@@ -106,7 +101,7 @@ if __name__ == '__main__':
     os.makedirs(args.dest + '/images', exist_ok=True)
     os.makedirs(args.dest + '/labels', exist_ok=True)
 
-    allfields = [cv2.imread('fields/' + f) for f in os.listdir('fields')]
+    allfields = [cv2.imread('fields/' + f).astype(float) for f in os.listdir('fields')]
     trainfields, valfields = allfields[:-1], allfields[-1:]
 
     for seed in range(args.num):
@@ -131,9 +126,10 @@ if __name__ == '__main__':
             # cv2.rectangle(field, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 2555), 2)
 
             boxes.append(darknetify(bbox, field.shape))
-        field = blur_edges(field)
+        # field = blur_edges(field)
         # place_target(generate_targets.target('circle', 'red', 'V', 'brown'), 'SE', (190, 300), 0.25)
 
+        # field = field.astype(np.uint8)
         cv2.imwrite(args.dest + '/images/field_{}.png'.format(seed), field)
         with open(args.dest + '/labels/field_{}.txt'.format(seed), 'w') as f:
             for box in boxes:
